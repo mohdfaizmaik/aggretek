@@ -1,0 +1,27 @@
+Commodity,Market,State,District,Min_Price,Max_Price,Modal_Price,Arrival_Date
+Wheat,Nagpur,Maharashtra,Nagpur,2180,2280,2230,10/06/2026
+Wheat,Indore,Madhya Pradesh,Indore,2150,2250,2200,10/06/2026
+Wheat,Azadpur,Delhi,North Delhi,2300,2400,2350,10/06/2026
+Rice,Nagpur,Maharashtra,Nagpur,2380,2480,2430,10/06/2026
+Rice,Indore,Madhya Pradesh,Indore,2350,2450,2400,10/06/2026
+Rice,Azadpur,Delhi,North Delhi,2500,2600,2550,10/06/2026
+Maize,Nagpur,Maharashtra,Nagpur,1880,1980,1930,10/06/2026
+Maize,Indore,Madhya Pradesh,Indore,1850,1950,1900,10/06/2026
+Soybean,Indore,Madhya Pradesh,Indore,4200,4400,4300,10/06/2026
+Soybean,Nagpur,Maharashtra,Nagpur,4150,4350,4250,10/06/2026
+Onion,Azadpur,Delhi,North Delhi,1200,1400,1300,10/06/2026
+Onion,Nashik,Maharashtra,Nashik,1150,1350,1250,10/06/2026
+Potato,Azadpur,Delhi,North Delhi,800,950,875,10/06/2026
+Potato,Indore,Madhya Pradesh,Indore,750,900,825,10/06/2026
+Tomato,Nashik,Maharashtra,Nashik,900,1100,1000,10/06/2026
+Mustard,Indore,Madhya Pradesh,Indore,5200,5400,5300,10/06/2026
+Cotton,Nagpur,Maharashtra,Nagpur,6800,7200,7000,10/06/2026
+Chana,Indore,Madhya Pradesh,Indore,5400,5600,5500,10/06/2026
+Tur Dal,Nagpur,Maharashtra,Nagpur,7200,7600,7400,10/06/2026
+Moong,Indore,Madhya Pradesh,Indore,8200,8600,8400,10/06/2026
+Groundnut,Nagpur,Maharashtra,Nagpur,6200,6600,6400,10/06/2026
+Bajra,Indore,Madhya Pradesh,Indore,2400,2600,2500,10/06/2026
+Jowar,Nagpur,Maharashtra,Nagpur,3100,3300,3200,10/06/2026
+Sunflower,Indore,Madhya Pradesh,Indore,5800,6200,6000,10/06/2026
+Urad Dal,Nagpur,Maharashtra,Nagpur,7000,7400,7200,10/06/2026
+Barley,Indore,Madhya Pradesh,Indore,1800,2000,1900,10/06/2026

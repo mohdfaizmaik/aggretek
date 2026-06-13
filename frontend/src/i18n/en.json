@@ -1,0 +1,97 @@
+{
+    "nav": {
+        "home": "Home",
+        "watchlist": "Watchlist",
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout"
+    },
+    "search": {
+        "placeholder": "Search crop (e.g. Wheat, Onion…)",
+        "market_placeholder": "Filter by market",
+        "state_label": "State",
+        "state_all": "All states",
+        "btn": "Search",
+        "clear": "Clear"
+    },
+    "table": {
+        "commodity": "Crop",
+        "market": "Market",
+        "state": "State",
+        "min": "Min ₹",
+        "max": "Max ₹",
+        "modal": "Modal ₹",
+        "msp": "MSP ₹",
+        "date": "Date",
+        "source": "Source",
+        "updated": "Updated",
+        "no_data": "No price data found. Try a different crop or market.",
+        "loading": "Loading prices…"
+    },
+    "chart": {
+        "title": "7-Day Price Trend",
+        "modal": "Modal Price",
+        "min": "Min",
+        "max": "Max",
+        "no_data": "No chart data available for this selection.",
+        "price_label": "Price (₹/quintal)"
+    },
+    "msp": {
+        "above": "Above MSP",
+        "below": "Below MSP",
+        "na": "No MSP"
+    },
+    "freshness": {
+        "just_now": "Just now",
+        "min_ago": "{{count}} min ago",
+        "hr_ago": "{{count}} hr ago",
+        "day_ago": "{{count}} day ago",
+        "unknown": "Unknown"
+    },
+    "watchlist": {
+        "title": "My Watchlist",
+        "subtitle": "Track your favorite crops and mandis with live prices.",
+        "empty": "No items in your watchlist. Star a crop to track it.",
+        "add": "Add to Watchlist",
+        "remove": "Remove",
+        "login_prompt": "Login to save your watchlist",
+        "no_price": "No recent price data"
+    },
+    "auth": {
+        "login_title": "Welcome Back",
+        "register_title": "Create Account",
+        "email": "Email",
+        "password": "Password",
+        "login_btn": "Login",
+        "register_btn": "Register",
+        "no_account": "Don't have an account?",
+        "have_account": "Already have an account?",
+        "register_link": "Register",
+        "login_link": "Login"
+    },
+    "errors": {
+        "fetch_failed": "Failed to load data. Please try again.",
+        "auth_required": "Please login to continue."
+    },
+    "common": {
+        "loading": "Loading…",
+        "error": "Error",
+        "retry": "Retry",
+        "page": "Page {{current}} of {{total}}",
+        "prev": "Previous",
+        "next": "Next",
+        "per_quintal": "per quintal",
+        "actions": "Actions",
+        "all_markets": "All Markets"
+    },
+    "hero": {
+        "title": "Real-time Mandi",
+        "highlight": "Prices",
+        "title_suffix": "for Farmers",
+        "subtitle": "Live commodity prices from Agmarknet & eNAM. Compare with MSP. Updated every 15 minutes."
+    },
+    "footer": {
+        "copyright": "© 2026 Agriमूल्य — Helping farmers find fair prices.",
+        "data_source": "Data sourced from Agmarknet & eNAM (CSV fallback enabled)."
+    }
+}
