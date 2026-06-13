@@ -14,10 +14,22 @@ const watchlistRouter = require('./routes/watchlist');
 
 const app = express();
 
+function parseCorsOrigins() {
+    const raw = process.env.CORS_ORIGIN || '*';
+    return raw.split(',').map((s) => s.trim()).filter(Boolean);
+}
+
 // ── Middleware ──────────────────────────────────────────────────────────────
 app.use(helmet());
+const allowedOrigins = parseCorsOrigins();
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin(origin, callback) {
+        if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(null, false);
+        }
+    },
     methods: ['GET', 'POST', 'DELETE'],
 }));
 app.use(express.json());
@@ -56,6 +68,7 @@ if (process.env.MOCK_MODE === 'true') {
     app.use('/api/msp', mspRouter);
     app.use('/api/auth', authRouter);
     app.use('/api/watchlist', watchlistRouter);
+    app.use('/api/admin', require('./routes/admin'));
 }
 
 /*

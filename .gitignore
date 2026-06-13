@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Environment (never commit secrets)
+.env
+.env.local
+.env.production
+.env.*.local
+backend/.env
+frontend/.env.local
+
+# Build output
+frontend/dist/
+backend/coverage/
+
+# Logs
+*.log
+npm-debug.log*
+backend/backend.log
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Vercel
+.vercel

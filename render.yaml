@@ -1,0 +1,41 @@
+# Render Blueprint — backend API (free tier)
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Setup:
+# 1. Push repo to GitHub
+# 2. Render Dashboard → New → Blueprint → connect repo
+# 3. Fill secret env vars when prompted (DATABASE_URL, REDIS_URL, JWT_SECRET, etc.)
+# 4. Run DB migrations against Neon (see DEPLOY.md)
+# 5. Set VITE_API_URL on Vercel to: https://<this-service-name>.onrender.com/api
+
+services:
+  - type: web
+    name: agritech-api
+    runtime: node
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci --omit=dev
+    startCommand: node src/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: MOCK_MODE
+        value: "false"
+      - key: DISABLE_CRON
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false
+      - key: AGMARKNET_API_KEY
+        sync: false
+      - key: CRON_SECRET
+        generateValue: true
