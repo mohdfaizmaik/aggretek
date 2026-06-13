@@ -49,7 +49,8 @@ function getCsvFallbackPrices(commodityName = '') {
                     min_price: parseFloat(r.Min_Price || 0),
                     max_price: parseFloat(r.Max_Price || 0),
                     modal_price: parseFloat(r.Modal_Price || 0),
-                    price_date: parseCsvDate(r.Arrival_Date),
+                    // Use today's date so rows stay inside the days=7 API window
+                    price_date: new Date().toISOString().split('T')[0],
                     fetched_at: new Date().toISOString(),
                     source: 'csv_fallback',
                 };

@@ -2,6 +2,7 @@
 const router = require('express').Router();
 const db = require('../db');
 const { cacheGet, cacheSet, TTL } = require('../cache/redis');
+const { normaliseCropName } = require('../services/normalise');
 
 /**
  * GET /api/prices
@@ -54,10 +55,16 @@ router.get('/', async (req, res) => {
         ];
 
         if (commodity) {
-            params.push(`%${commodity.toLowerCase()}%`);
-            conditions.push(`(LOWER(c.name_en) LIKE $${params.length} OR LOWER(c.name_hi) LIKE $${params.length} OR EXISTS (
+            const canonical = normaliseCropName(commodity);
+            if (canonical) {
+                params.push(canonical.toLowerCase());
+                conditions.push(`LOWER(c.name_en) = $${params.length}`);
+            } else {
+                params.push(`%${commodity.toLowerCase()}%`);
+                conditions.push(`(LOWER(c.name_en) LIKE $${params.length} OR LOWER(c.name_hi) LIKE $${params.length} OR EXISTS (
         SELECT 1 FROM unnest(c.aliases) a WHERE LOWER(a) LIKE $${params.length}
       ))`);
+            }
         }
         if (market) {
             params.push(`%${market.toLowerCase()}%`);
@@ -148,15 +155,16 @@ router.get('/sparkline', async (req, res) => {
         const { commodity, market, days = 7 } = req.query;
         if (!commodity) return res.status(400).json({ error: 'commodity is required' });
 
+        const canonical = normaliseCropName(commodity) || commodity;
         const safeDays = Math.min(Math.max(parseInt(days) || 365, 1), 730);
-        const cacheKey = `sparkline:${commodity}:${market || ''}:${safeDays}`;
+        const cacheKey = `sparkline:${canonical}:${market || ''}:${safeDays}`;
         const cached = await cacheGet(cacheKey);
         if (cached) return res.json(cached);
 
-        const params = [commodity.toLowerCase(), safeDays];
+        const params = [canonical.toLowerCase(), safeDays];
         let marketFilter = '';
         if (market) {
-            params.push(market.toLowerCase());
+            params.push(`%${market.toLowerCase()}%`);
             marketFilter = `AND LOWER(mk.name) LIKE $${params.length}`;
         }
 
@@ -169,7 +177,7 @@ router.get('/sparkline', async (req, res) => {
        FROM prices p
        JOIN commodities c ON c.id = p.commodity_id
        JOIN markets mk ON mk.id = p.market_id
-       WHERE (LOWER(c.name_en) LIKE $1 OR LOWER(c.name_hi) LIKE $1)
+       WHERE LOWER(c.name_en) = $1
          AND p.price_date >= CURRENT_DATE - ($2 || ' days')::INTERVAL
          ${marketFilter}
        GROUP BY p.price_date

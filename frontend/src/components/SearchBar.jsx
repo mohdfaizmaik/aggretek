@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { api } from '../api/client';
 
 const FOCUS_STATES = ['', 'Maharashtra', 'Madhya Pradesh', 'Delhi'];
 
@@ -8,6 +9,13 @@ export default function SearchBar({ onSearch, initialCrop = '', initialMarket = 
     const [crop, setCrop] = useState(initialCrop);
     const [market, setMarket] = useState(initialMarket);
     const [state, setState] = useState(initialState);
+    const [commodities, setCommodities] = useState([]);
+
+    useEffect(() => {
+        api.getCommodities()
+            .then((res) => setCommodities(res.data || []))
+            .catch(() => setCommodities([]));
+    }, []);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -28,10 +36,19 @@ export default function SearchBar({ onSearch, initialCrop = '', initialMarket = 
                 <input
                     id="crop-search"
                     className="input"
+                    list="crop-suggestions"
                     placeholder={t('search.placeholder')}
                     value={crop}
                     onChange={(e) => setCrop(e.target.value)}
                 />
+                <datalist id="crop-suggestions">
+                    {commodities.map((c) => (
+                        <option key={c.id} value={c.name_en} label={`${c.name_en} / ${c.name_hi}`} />
+                    ))}
+                </datalist>
+                <span className="text-xs text-muted" style={{ display: 'block', marginTop: '0.25rem' }}>
+                    {t('search.hint')}
+                </span>
             </div>
             <div style={{ flex: 1, minWidth: '160px' }}>
                 <label className="form-label">{t('search.state_label')}</label>

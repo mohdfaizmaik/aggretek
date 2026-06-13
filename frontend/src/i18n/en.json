@@ -12,7 +12,8 @@
         "state_label": "State",
         "state_all": "All states",
         "btn": "Search",
-        "clear": "Clear"
+        "clear": "Clear",
+        "hint": "Type Wheat, Rice, Onion… or Hindi (गेहूँ). Click Search. Use All states if no results."
     },
     "table": {
         "commodity": "Crop",

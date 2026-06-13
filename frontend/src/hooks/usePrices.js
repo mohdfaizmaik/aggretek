@@ -3,7 +3,7 @@ import { api } from '../api/client';
 
 const REFRESH_INTERVAL = 15 * 60 * 1000; // 15 minutes
 
-export function usePrices({ commodity, market, state, days = 7, page = 1, limit = 50, sort = 'price_date', order = 'desc' }) {
+export function usePrices({ commodity, market, state, days = 30, page = 1, limit = 50, sort = 'price_date', order = 'desc' }) {
     const [data, setData] = useState([]);
     const [pagination, setPagination] = useState(null);
     const [meta, setMeta] = useState(null);
@@ -38,7 +38,7 @@ export function usePrices({ commodity, market, state, days = 7, page = 1, limit 
     return { data, pagination, meta, loading, error, refetch: fetchPrices };
 }
 
-export function useSparkline({ commodity, market, days = 7 }) {
+export function useSparkline({ commodity, market, days = 30 }) {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
