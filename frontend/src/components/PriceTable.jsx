@@ -3,6 +3,7 @@ import MSPBadge from './MSPBadge';
 import FreshnessBadge from './FreshnessBadge';
 import WatchlistButton from './WatchlistButton';
 import LoadingSkeleton from './LoadingSkeleton';
+import { formatDisplayDate } from '../utils/formatDate';
 
 const BASE_COLS = [
     { key: 'price_date', label_key: 'table.date', sortable: true },
@@ -36,7 +37,7 @@ export default function PriceTable({
     showWatchlist = true,
     onRemove,
 }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     const cols = [
         ...BASE_COLS,
@@ -93,7 +94,7 @@ export default function PriceTable({
                                 className={selectedRow?.id === row.id ? 'selected' : ''}
                                 onClick={() => onRowClick?.(row)}
                             >
-                                <td className="text-sm text-muted">{row.price_date || '—'}</td>
+                                <td className="text-sm text-muted">{formatDisplayDate(row.price_date, i18n.language)}</td>
                                 <td>
                                     <div className="crop-cell">
                                         <span className="crop-en">{row.commodity_en}</span>

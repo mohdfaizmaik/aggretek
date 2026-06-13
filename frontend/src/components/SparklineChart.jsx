@@ -1,12 +1,14 @@
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+    Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
     ResponsiveContainer, Area, AreaChart,
 } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { useSparkline } from '../hooks/usePrices';
+import { formatChartDate, formatDisplayDate } from '../utils/formatDate';
 
-const CustomTooltip = ({ active, payload, label }) => {
+function CustomTooltip({ active, payload }) {
     if (!active || !payload?.length) return null;
+    const row = payload[0]?.payload;
     return (
         <div style={{
             background: 'var(--bg-elevated)',
@@ -15,7 +17,7 @@ const CustomTooltip = ({ active, payload, label }) => {
             padding: '8px 12px',
             fontSize: '0.85rem',
         }}>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: 4 }}>{label}</p>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 4 }}>{row?.tooltipDate}</p>
             {payload.map((p) => (
                 <p key={p.dataKey} style={{ color: p.color, fontWeight: 600 }}>
                     {p.name}: ₹{Number(p.value).toLocaleString('en-IN')}
@@ -23,11 +25,11 @@ const CustomTooltip = ({ active, payload, label }) => {
             ))}
         </div>
     );
-};
+}
 
 export default function SparklineChart({ commodity, market }) {
-    const { t } = useTranslation();
-    const { data, loading, error } = useSparkline({ commodity, market, days: 7 });
+    const { t, i18n } = useTranslation();
+    const { data, loading, error } = useSparkline({ commodity, market, days: 30 });
 
     if (!commodity) return null;
 
@@ -47,7 +49,8 @@ export default function SparklineChart({ commodity, market }) {
 
     const formatted = data.map((d) => ({
         ...d,
-        price_date: new Date(d.price_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+        dateLabel: formatChartDate(d.price_date, i18n.language),
+        tooltipDate: formatDisplayDate(d.price_date, i18n.language),
         modal_price: parseFloat(d.modal_price),
         min_price: parseFloat(d.min_price),
         max_price: parseFloat(d.max_price),
@@ -69,7 +72,7 @@ export default function SparklineChart({ commodity, market }) {
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                     <XAxis
-                        dataKey="price_date"
+                        dataKey="dateLabel"
                         tick={{ fill: 'var(--text-secondary)', fontSize: 12 }}
                         axisLine={false}
                         tickLine={false}
