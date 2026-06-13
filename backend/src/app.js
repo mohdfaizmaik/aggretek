@@ -59,8 +59,29 @@ if (process.env.MOCK_MODE === 'true') {
     }));
     app.get('/api/watchlist', (req, res) => res.json([]));
 } else {
-    app.get('/api/health', (req, res) => {
-        res.json({ status: 'ok', ts: new Date().toISOString(), env: process.env.NODE_ENV });
+    const db = require('./db');
+    app.get('/api/health', async (req, res) => {
+        const payload = {
+            status: 'ok',
+            ts: new Date().toISOString(),
+            env: process.env.NODE_ENV,
+        };
+        try {
+            await db.query('SELECT 1');
+            const tableCheck = await db.query(
+                `SELECT EXISTS (
+                   SELECT FROM information_schema.tables
+                   WHERE table_schema = 'public' AND table_name = 'commodities'
+                 ) AS ready`
+            );
+            const ready = tableCheck.rows[0]?.ready;
+            payload.database = ready ? 'ready' : 'connected — run schema.sql migrations';
+            if (!ready) payload.status = 'degraded';
+        } catch (err) {
+            payload.status = 'degraded';
+            payload.database = `error: ${err.message}`;
+        }
+        res.status(payload.status === 'ok' ? 200 : 503).json(payload);
     });
     app.use('/api/commodities', commoditiesRouter);
     app.use('/api/markets', marketsRouter);

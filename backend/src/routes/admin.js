@@ -5,7 +5,14 @@ const { pollPrices } = require('../jobs/pricePoll');
 function verifyCronSecret(req) {
     const secret = process.env.CRON_SECRET;
     if (!secret) return { ok: false, status: 503, error: 'CRON_SECRET not configured' };
-    const provided = req.headers['x-cron-secret'] || req.query.secret;
+    const raw = req.headers['x-cron-secret'] || req.query.secret;
+    if (!raw) return { ok: false, status: 401, error: 'Unauthorized' };
+    let provided = String(raw);
+    try {
+        provided = decodeURIComponent(provided);
+    } catch {
+        // use raw value if not URI-encoded
+    }
     if (provided !== secret) return { ok: false, status: 401, error: 'Unauthorized' };
     return { ok: true };
 }

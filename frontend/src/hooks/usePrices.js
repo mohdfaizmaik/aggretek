@@ -20,7 +20,10 @@ export function usePrices({ commodity, market, state, days = 7, page = 1, limit 
             setPagination(res.data.pagination || null);
             setMeta(res.data.meta || null);
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to load prices');
+            const msg = err.code === 'ECONNABORTED'
+                ? 'Server is waking up — please wait a moment and refresh.'
+                : (err.response?.data?.error || 'Failed to load prices');
+            setError(msg);
         } finally {
             setLoading(false);
         }
@@ -45,7 +48,11 @@ export function useSparkline({ commodity, market, days = 7 }) {
         setLoading(true);
         api.getSparkline({ commodity, market, days })
             .then((res) => setData(res.data))
-            .catch((err) => setError(err.response?.data?.error || 'Failed to load chart'))
+            .catch((err) => setError(
+                err.code === 'ECONNABORTED'
+                    ? 'Server is waking up — chart will load shortly.'
+                    : (err.response?.data?.error || 'Failed to load chart')
+            ))
             .finally(() => setLoading(false));
     }, [commodity, market, days]);
 

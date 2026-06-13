@@ -1,11 +1,32 @@
 import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+// Render free tier cold starts can take 30–60s; local dev stays fast
+const DEFAULT_TIMEOUT = import.meta.env.PROD ? 90000 : 15000;
 
 const client = axios.create({
     baseURL: BASE_URL,
-    timeout: 15000,
+    timeout: DEFAULT_TIMEOUT,
 });
+
+// Retry once on timeout when backend is waking up (Render free tier)
+client.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const config = error.config;
+        if (
+            error.code === 'ECONNABORTED'
+            && config
+            && !config.__retry
+            && import.meta.env.PROD
+        ) {
+            config.__retry = true;
+            config.timeout = 120000;
+            return client.request(config);
+        }
+        return Promise.reject(error);
+    }
+);
 
 // Auto-attach JWT token if available
 client.interceptors.request.use((config) => {
