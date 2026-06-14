@@ -56,6 +56,7 @@ export default function ProfilePage() {
         if (ok) {
             saveGuestLocation({ district, state });
             setMessage(t('profile.saved'));
+            window.dispatchEvent(new Event('agritech-location-change'));
         } else {
             setError(authError || t('profile.save_failed'));
         }
@@ -78,8 +79,10 @@ export default function ProfilePage() {
                     longitude: pos.coords.longitude,
                 });
                 setSaving(false);
-                if (ok) setMessage(t('profile.gps_saved'));
-                else setError(authError || t('profile.save_failed'));
+                if (ok) {
+                    setMessage(t('profile.gps_saved'));
+                    window.dispatchEvent(new Event('agritech-location-change'));
+                } else setError(authError || t('profile.save_failed'));
             },
             () => {
                 setSaving(false);

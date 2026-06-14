@@ -79,6 +79,7 @@ export function AuthProvider({ children }) {
             const res = await api.updateProfile(fields);
             persistAuth(localStorage.getItem('agritech_token'), res.data.user);
             setUser(res.data.user);
+            window.dispatchEvent(new Event('agritech-location-change'));
             return true;
         } catch (err) {
             const msg = err.response?.data?.error

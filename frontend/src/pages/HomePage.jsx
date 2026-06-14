@@ -8,6 +8,7 @@ import AlertsBanner from '../components/AlertsBanner';
 import GuestLocationPicker from '../components/GuestLocationPicker';
 import { usePrices } from '../hooks/usePrices';
 import { useInsights } from '../hooks/useInsights';
+import { useAuth } from '../hooks/useAuth';
 import { loadGuestLocation } from '../utils/location';
 
 export default function HomePage() {
@@ -19,7 +20,9 @@ export default function HomePage() {
     const [selectedRow, setSelectedRow] = useState(null);
     const [guestLocation, setGuestLocation] = useState(() => loadGuestLocation());
 
-    const { data: insights, loading: insightsLoading, error: insightsError, refresh: refreshInsights } = useInsights(guestLocation);
+    const { user, isLoggedIn } = useAuth();
+    const insightsLocation = isLoggedIn && user?.district ? null : guestLocation;
+    const { data: insights, loading: insightsLoading, error: insightsError, refresh: refreshInsights, location: weatherLocation } = useInsights(insightsLocation);
     const { data, pagination, loading, error } = usePrices({
         ...filters,
         sort,
@@ -55,7 +58,7 @@ export default function HomePage() {
                     weather={insights?.weather}
                     loading={insightsLoading}
                     error={insightsError}
-                    location={insights?.location || guestLocation}
+                    location={weatherLocation}
                     onRetry={refreshInsights}
                 />
                 <AlertsBanner alerts={insights?.alerts} />

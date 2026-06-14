@@ -7,6 +7,13 @@ const { resolveLocation, DEFAULT_LOCATION } = require('../data/districtCentroids
 const db = require('../db');
 
 async function resolveRequestLocation(req) {
+    if (req.query.district && req.query.state) {
+        return resolveLocation({
+            district: req.query.district,
+            state: req.query.state,
+        });
+    }
+
     if (req.user?.id) {
         try {
             const result = await db.query(
@@ -15,10 +22,15 @@ async function resolveRequestLocation(req) {
             );
             const row = result.rows[0];
             if (row?.district || row?.state || row?.latitude) {
-                return resolveLocation(row);
+                return resolveLocation({
+                    district: row.district,
+                    state: row.state,
+                    latitude: row.latitude,
+                    longitude: row.longitude,
+                });
             }
         } catch {
-            // fall through to query params
+            // fall through
         }
     }
 

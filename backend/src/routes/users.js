@@ -58,12 +58,20 @@ router.patch('/me', async (req, res) => {
         }
 
         if (district !== undefined || state !== undefined || latitude !== undefined || longitude !== undefined) {
-            const resolved = resolveLocation({
-                district: district !== undefined ? district : cur.district,
-                state: state !== undefined ? state : cur.state,
-                latitude: latitude !== undefined ? latitude : cur.latitude,
-                longitude: longitude !== undefined ? longitude : cur.longitude,
-            });
+            const nextDistrict = district !== undefined ? district : cur.district;
+            const nextState = state !== undefined ? state : cur.state;
+            const gpsProvided = latitude != null && longitude != null
+                && latitude !== '' && longitude !== '';
+
+            // Manual district/state save must not keep old GPS (e.g. Nashik coords when user picks Delhi)
+            const resolved = gpsProvided
+                ? resolveLocation({
+                    district: nextDistrict,
+                    state: nextState,
+                    latitude,
+                    longitude,
+                })
+                : resolveLocation({ district: nextDistrict, state: nextState });
 
             updates.push(`district = $${idx++}`);
             values.push(resolved.district);
