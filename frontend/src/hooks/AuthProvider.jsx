@@ -81,7 +81,11 @@ export function AuthProvider({ children }) {
             setUser(res.data.user);
             return true;
         } catch (err) {
-            setError(err.response?.data?.error || 'Update failed');
+            const msg = err.response?.data?.error
+                || (err.message === 'Network Error' ? 'Network error — wait for server to wake up, then retry' : null)
+                || (err.code === 'ERR_NETWORK' ? 'Connection failed — check API URL and retry' : null)
+                || 'Update failed';
+            setError(msg);
             return false;
         } finally {
             setLoading(false);

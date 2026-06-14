@@ -1,6 +1,16 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+/** Production uses same-origin /api proxy (vercel.json) — no CORS preflight on PATCH. */
+function resolveBaseUrl() {
+    const env = import.meta.env.VITE_API_URL;
+    if (import.meta.env.PROD) {
+        if (!env || env.includes('onrender.com')) return '/api';
+        return env;
+    }
+    return env || 'http://localhost:4000/api';
+}
+
+const BASE_URL = resolveBaseUrl();
 // Render free tier cold starts can take 30–60s; local dev stays fast
 const DEFAULT_TIMEOUT = import.meta.env.PROD ? 90000 : 15000;
 

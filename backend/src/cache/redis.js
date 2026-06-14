@@ -2,14 +2,36 @@
 const Redis = require('ioredis');
 
 let client;
+let warnedBadUrl = false;
+
+/**
+ * Fix common Upstash paste mistake: "redis-cli --tls -u redis://..." → "rediss://..."
+ */
+function normalizeRedisUrl(raw) {
+    if (!raw) return 'redis://localhost:6379';
+    const trimmed = raw.trim();
+    const match = trimmed.match(/(rediss?:\/\/[^\s"'<>]+)/i);
+    let url = match ? match[1] : trimmed;
+    if (/upstash\.io/i.test(url) && url.startsWith('redis://')) {
+        url = `rediss://${url.slice('redis://'.length)}`;
+    }
+    return url;
+}
 
 function getRedis() {
     if (!client) {
-        client = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
-            maxRetriesPerRequest: 3,
+        const raw = process.env.REDIS_URL;
+        const url = normalizeRedisUrl(raw);
+        if (raw && raw !== url && !warnedBadUrl) {
+            warnedBadUrl = true;
+            console.warn('[Redis] REDIS_URL was malformed — auto-fixed. Set on Render to:', url);
+        }
+        client = new Redis(url, {
+            maxRetriesPerRequest: 1,
             enableReadyCheck: true,
-            retryStrategy: (times) => Math.min(times * 100, 3000),
+            retryStrategy: (times) => (times > 2 ? null : Math.min(times * 100, 500)),
             lazyConnect: true,
+            connectTimeout: 5000,
         });
 
         client.on('error', (err) => {
@@ -64,4 +86,4 @@ async function disconnect() {
     }
 }
 
-module.exports = { getRedis, cacheGet, cacheSet, cacheDel, disconnect, TTL };
+module.exports = { getRedis, cacheGet, cacheSet, cacheDel, disconnect, TTL, normalizeRedisUrl };

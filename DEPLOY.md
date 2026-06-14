@@ -28,7 +28,19 @@ psql "$DATABASE_URL" -f backend/src/db/migrations/002_phase2_weather.sql
 ## 2. Redis (Upstash)
 
 1. Create a Redis database on Upstash.
-2. Copy the **Redis URL** (`rediss://...`).
+2. Copy the **Redis URL** only — not the full `redis-cli` command.
+
+**Wrong** (pasted CLI command — breaks connection):
+```
+redis-cli --tls -u redis://default:PASSWORD@polite-tadpole-148391.upstash.io:6379
+```
+
+**Correct** (`REDIS_URL` on Render):
+```
+rediss://default:PASSWORD@polite-tadpole-148391.upstash.io:6379
+```
+
+Use `rediss://` (with double **s**) for TLS. Replace `PASSWORD` with your Upstash token.
 
 ---
 
@@ -66,10 +78,14 @@ psql "$DATABASE_URL" -f backend/src/db/migrations/002_phase2_weather.sql
 3. Environment variable (Production):
 
 ```
-VITE_API_URL=https://agritech-api.onrender.com/api
+VITE_API_URL=/api
 ```
 
-4. Deploy. URL example: `https://agritech.vercel.app`
+Use `/api` so the browser calls **aggretek.vercel.app/api/...** (same origin). Vercel proxies to Render — **no CORS errors on PATCH/login**.
+
+Do **not** set `VITE_API_URL` to the Render URL in production unless you need direct API access.
+
+4. Deploy. URL example: `https://aggretek.vercel.app`
 
 5. Update Render `CORS_ORIGIN` to match your Vercel URL, then redeploy backend.
 

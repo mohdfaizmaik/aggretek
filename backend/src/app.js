@@ -20,12 +20,18 @@ function parseCorsOrigins() {
 }
 
 /** Vercel production + preview URLs for this app (PATCH needs preflight + matching origin). */
+function normalizeOrigin(origin) {
+    if (!origin || typeof origin !== 'string') return origin;
+    return origin.replace(/\/$/, '');
+}
+
 function isAllowedOrigin(origin, allowedOrigins) {
     if (!origin) return true;
+    const normalized = normalizeOrigin(origin);
     if (allowedOrigins.includes('*')) return true;
-    if (allowedOrigins.includes(origin)) return true;
-    if (/^https:\/\/aggretek(-[\w-]+)*\.vercel\.app$/i.test(origin)) return true;
-    if (process.env.NODE_ENV !== 'production' && /^http:\/\/localhost(:\d+)?$/.test(origin)) return true;
+    if (allowedOrigins.some((o) => normalizeOrigin(o) === normalized)) return true;
+    if (/^https:\/\/aggretek(-[\w-]+)*\.vercel\.app$/i.test(normalized)) return true;
+    if (process.env.NODE_ENV !== 'production' && /^http:\/\/localhost(:\d+)?$/i.test(normalized)) return true;
     return false;
 }
 
@@ -34,19 +40,30 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 const allowedOrigins = parseCorsOrigins();
-app.use(cors({
+const corsOptions = {
     origin(origin, callback) {
         if (isAllowedOrigin(origin, allowedOrigins)) {
-            callback(null, origin || true);
+            callback(null, normalizeOrigin(origin) || true);
         } else {
             console.warn('[CORS] Blocked origin:', origin);
             callback(null, false);
         }
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Cron-Secret'],
+    // Reflect all preflight headers (Accept, Authorization, etc.) — avoids Chrome CORS failures
+    allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'Accept',
+        'Origin',
+        'X-Requested-With',
+        'X-Cron-Secret',
+    ],
     optionsSuccessStatus: 204,
-}));
+};
+app.use(cors(corsOptions));
+// Ensure PATCH preflight is answered before any route/auth logic
+app.options(/.*/, cors(corsOptions));
 app.use(express.json());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
