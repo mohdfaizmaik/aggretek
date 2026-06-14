@@ -73,11 +73,14 @@ VITE_API_URL=https://agritech-api.onrender.com/api
 
 5. Update Render `CORS_ORIGIN` to match your Vercel URL, then redeploy backend.
 
-Preview deployments: set `CORS_ORIGIN` to comma-separated URLs:
+Preview deployments: backend allows any `https://aggretek*.vercel.app` URL automatically.
+You can still set explicit origins in `CORS_ORIGIN`:
 
 ```
-https://agritech.vercel.app,https://agritech-git-main-you.vercel.app
+https://aggretek.vercel.app,http://localhost:5173
 ```
+
+**Profile save CORS error?** Open the app at `https://aggretek.vercel.app` (not the long Vercel preview URL), or redeploy backend with the latest CORS fix.
 
 ---
 

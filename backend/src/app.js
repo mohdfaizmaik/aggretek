@@ -19,18 +19,33 @@ function parseCorsOrigins() {
     return raw.split(',').map((s) => s.trim()).filter(Boolean);
 }
 
+/** Vercel production + preview URLs for this app (PATCH needs preflight + matching origin). */
+function isAllowedOrigin(origin, allowedOrigins) {
+    if (!origin) return true;
+    if (allowedOrigins.includes('*')) return true;
+    if (allowedOrigins.includes(origin)) return true;
+    if (/^https:\/\/aggretek(-[\w-]+)*\.vercel\.app$/i.test(origin)) return true;
+    if (process.env.NODE_ENV !== 'production' && /^http:\/\/localhost(:\d+)?$/.test(origin)) return true;
+    return false;
+}
+
 // ── Middleware ──────────────────────────────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 const allowedOrigins = parseCorsOrigins();
 app.use(cors({
     origin(origin, callback) {
-        if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-            callback(null, true);
+        if (isAllowedOrigin(origin, allowedOrigins)) {
+            callback(null, origin || true);
         } else {
+            console.warn('[CORS] Blocked origin:', origin);
             callback(null, false);
         }
     },
-    methods: ['GET', 'POST', 'DELETE', 'PATCH'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Cron-Secret'],
+    optionsSuccessStatus: 204,
 }));
 app.use(express.json());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
