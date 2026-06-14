@@ -502,3 +502,15 @@ a:hover { color: var(--green-500); }
 .text-muted { color: var(--text-muted); }
 .font-mono  { font-variant-numeric: tabular-nums; }
 .w-full { width: 100%; }
+
+/* ── Weather card ─────────────────────────────────────── */
+.weather-forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: var(--space-2);
+}
+
+.weather-day {
+  text-align: center;
+  padding: var(--space-2) var(--space-1);
+}

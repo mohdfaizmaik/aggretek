@@ -4,7 +4,8 @@
         "watchlist": "Watchlist",
         "login": "Login",
         "register": "Register",
-        "logout": "Logout"
+        "logout": "Logout",
+        "profile": "Location"
     },
     "search": {
         "placeholder": "Search crop (e.g. Wheat, Onion…)",
@@ -68,7 +69,9 @@
         "no_account": "Don't have an account?",
         "have_account": "Already have an account?",
         "register_link": "Register",
-        "login_link": "Login"
+        "login_link": "Login",
+        "invalid_credentials": "Invalid email or password.",
+        "try_register": "No account yet? Register first on the live site — local accounts are not synced to production."
     },
     "errors": {
         "fetch_failed": "Failed to load data. Please try again.",
@@ -94,5 +97,35 @@
     "footer": {
         "copyright": "© 2026 Agriमूल्य — Helping farmers find fair prices.",
         "data_source": "Data sourced from Agmarknet & eNAM (CSV fallback enabled)."
+    },
+    "weather": {
+        "title": "Local Weather",
+        "loading": "Loading weather…",
+        "humidity": "Humidity",
+        "no_rain": "No rain",
+        "rain_mm": "{{mm}} mm rain",
+        "rain_3d": "Rain (3 days)",
+        "forecast_7d": "7-day forecast",
+        "profile_hint": "Set your village for accurate weather and sowing alerts in"
+    },
+    "alerts": {
+        "title": "Sowing & Harvest Alerts",
+        "sow": "Sowing",
+        "harvest": "Harvest"
+    },
+    "profile": {
+        "title": "Your Location",
+        "subtitle": "Weather and crop alerts use your district. Works on slow networks — no map download needed.",
+        "village": "Village (optional)",
+        "village_placeholder": "e.g. Wavi",
+        "state": "State",
+        "district": "District",
+        "save": "Save location",
+        "saved": "Location saved.",
+        "save_failed": "Could not save location.",
+        "use_gps": "Use GPS",
+        "gps_saved": "GPS location saved.",
+        "gps_denied": "GPS permission denied — choose district manually.",
+        "gps_unavailable": "GPS not available on this device."
     }
 }

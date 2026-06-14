@@ -20,6 +20,7 @@
 ```bash
 psql "$DATABASE_URL" -f backend/src/db/schema.sql
 psql "$DATABASE_URL" -f backend/src/db/migrations/001_prices_unique.sql
+psql "$DATABASE_URL" -f backend/src/db/migrations/002_phase2_weather.sql
 ```
 
 ---

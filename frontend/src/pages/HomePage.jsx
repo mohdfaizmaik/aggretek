@@ -3,7 +3,12 @@ import { useTranslation } from 'react-i18next';
 import SearchBar from '../components/SearchBar';
 import PriceTable from '../components/PriceTable';
 import SparklineChart from '../components/SparklineChart';
+import WeatherCard from '../components/WeatherCard';
+import AlertsBanner from '../components/AlertsBanner';
+import GuestLocationPicker from '../components/GuestLocationPicker';
 import { usePrices } from '../hooks/usePrices';
+import { useInsights } from '../hooks/useInsights';
+import { loadGuestLocation } from '../utils/location';
 
 export default function HomePage() {
     const { t } = useTranslation();
@@ -12,7 +17,9 @@ export default function HomePage() {
     const [order, setOrder] = useState('desc');
     const [page, setPage] = useState(1);
     const [selectedRow, setSelectedRow] = useState(null);
+    const [guestLocation, setGuestLocation] = useState(() => loadGuestLocation());
 
+    const { data: insights, loading: insightsLoading, error: insightsError, refresh: refreshInsights } = useInsights(guestLocation);
     const { data, pagination, loading, error } = usePrices({
         ...filters,
         sort,
@@ -42,6 +49,16 @@ export default function HomePage() {
                     </h1>
                     <p>{t('hero.subtitle')}</p>
                 </div>
+
+                <GuestLocationPicker onChange={setGuestLocation} />
+                <WeatherCard
+                    weather={insights?.weather}
+                    loading={insightsLoading}
+                    error={insightsError}
+                    location={insights?.location || guestLocation}
+                    onRetry={refreshInsights}
+                />
+                <AlertsBanner alerts={insights?.alerts} />
 
                 <SearchBar
                     onSearch={handleSearch}

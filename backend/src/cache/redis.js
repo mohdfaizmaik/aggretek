@@ -27,6 +27,8 @@ const TTL = {
     COMMODITIES: 60 * 60,     // 1 hour
     MARKETS: 60 * 60,         // 1 hour
     MSP: 60 * 60 * 24,        // 24 hours
+    WEATHER: 60 * 30,         // 30 minutes
+    INSIGHTS: 60 * 30,        // 30 minutes
 };
 
 async function cacheGet(key) {

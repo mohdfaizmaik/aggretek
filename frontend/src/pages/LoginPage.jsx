@@ -60,7 +60,10 @@ export default function LoginPage() {
                                 fontSize: '0.875rem',
                                 marginBottom: '1rem',
                             }}>
-                                {error}
+                                <div>{error === 'Invalid email or password' ? t('auth.invalid_credentials') : error}</div>
+                                {error === 'Invalid email or password' && (
+                                    <div style={{ marginTop: '0.5rem' }}>{t('auth.try_register')}</div>
+                                )}
                             </div>
                         )}
                         <button type="submit" className="btn btn-primary w-full" disabled={loading} id="login-submit">

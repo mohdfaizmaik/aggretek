@@ -30,7 +30,7 @@ app.use(cors({
             callback(null, false);
         }
     },
-    methods: ['GET', 'POST', 'DELETE'],
+    methods: ['GET', 'POST', 'DELETE', 'PATCH'],
 }));
 app.use(express.json());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
@@ -58,6 +58,34 @@ if (process.env.MOCK_MODE === 'true') {
         user: { id: 2, email: req.body?.email || 'new@example.com', preferred_lang: req.body?.preferred_lang || 'en' },
     }));
     app.get('/api/watchlist', (req, res) => res.json([]));
+    app.get('/api/insights', (req, res) => res.json({
+        weather: {
+            location: { district: 'Nashik', state: 'Maharashtra', latitude: 19.99, longitude: 73.78 },
+            current: { temp_c: 32, humidity_pct: 65, rainfall_mm: 0, condition_en: 'Clear sky', condition_hi: 'साफ आसमान' },
+            daily: [{ date: '2026-06-13', temp_max: 35, temp_min: 26, rain_mm: 2 }],
+            rain_next_3d_mm: 5,
+            fetched_at: new Date().toISOString(),
+        },
+        alerts: [{
+            type: 'sow',
+            severity: 'info',
+            crop: 'Soybean',
+            crop_hi: 'सोयाबीन',
+            message_en: 'Soybean sowing window is open.',
+            message_hi: 'सोयाबीन बुवाई का समय चल रहा है।',
+        }],
+        location: { district: 'Nashik', state: 'Maharashtra' },
+    }));
+    app.get('/api/users/locations', (req, res) => res.json({
+        states: [
+            { state: 'Maharashtra', districts: ['Nashik', 'Pune', 'Nagpur'] },
+            { state: 'Madhya Pradesh', districts: ['Indore', 'Bhopal'] },
+            { state: 'Delhi', districts: ['Delhi'] },
+        ],
+    }));
+    app.patch('/api/users/me', (req, res) => res.json({
+        user: { id: 1, email: 'farmer@example.com', preferred_lang: 'hi', district: 'Nashik', state: 'Maharashtra' },
+    }));
 } else {
     const db = require('./db');
     app.get('/api/health', async (req, res) => {
@@ -89,6 +117,11 @@ if (process.env.MOCK_MODE === 'true') {
     app.use('/api/msp', mspRouter);
     app.use('/api/auth', authRouter);
     app.use('/api/watchlist', watchlistRouter);
+    app.use('/api/users', require('./routes/users'));
+    app.use('/api/weather', require('./routes/weather'));
+    const { optionalAuth } = require('./middleware/auth');
+    const { handleInsights } = require('./routes/weather');
+    app.get('/api/insights', optionalAuth, handleInsights);
     app.use('/api/admin', require('./routes/admin'));
 }
 

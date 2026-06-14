@@ -23,9 +23,14 @@ export default function Header() {
                         {t('nav.home')}
                     </NavLink>
                     {isLoggedIn && (
-                        <NavLink to="/watchlist" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-                            ⭐ {t('nav.watchlist')}
-                        </NavLink>
+                        <>
+                            <NavLink to="/watchlist" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+                                ⭐ {t('nav.watchlist')}
+                            </NavLink>
+                            <NavLink to="/profile" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+                                📍 {t('nav.profile')}
+                            </NavLink>
+                        </>
                     )}
                     {!isLoggedIn ? (
                         <>

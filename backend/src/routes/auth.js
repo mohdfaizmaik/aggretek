@@ -3,6 +3,7 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
+const { toPublicUser } = require('../utils/user');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'agritech-dev-secret-change-in-prod';
 const JWT_EXPIRES = '7d';
@@ -22,13 +23,15 @@ router.post('/register', async (req, res) => {
 
         const hash = await bcrypt.hash(password, 10);
         const result = await db.query(
-            'INSERT INTO users (email, password_hash, preferred_lang) VALUES ($1, $2, $3) RETURNING id, email, preferred_lang',
+            `INSERT INTO users (email, password_hash, preferred_lang)
+             VALUES ($1, $2, $3)
+             RETURNING id, email, preferred_lang, village, district, state, latitude, longitude`,
             [email.toLowerCase(), hash, preferred_lang]
         );
 
         const user = result.rows[0];
         const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
-        res.status(201).json({ token, user: { id: user.id, email: user.email, preferred_lang: user.preferred_lang } });
+        res.status(201).json({ token, user: toPublicUser(user) });
     } catch (err) {
         console.error('[API/auth/register]', err.message);
         res.status(500).json({ error: 'Registration failed' });
@@ -49,7 +52,7 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid email or password' });
 
         const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
-        res.json({ token, user: { id: user.id, email: user.email, preferred_lang: user.preferred_lang } });
+        res.json({ token, user: toPublicUser(user) });
     } catch (err) {
         console.error('[API/auth/login]', err.message);
         res.status(500).json({ error: 'Login failed' });

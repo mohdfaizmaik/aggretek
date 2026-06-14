@@ -4,7 +4,7 @@ This document outlines the full lifecycle of the **Agriमूल्य** applica
 
 ---
 
-## ✅ Phase 1: Foundation (Weeks 1–6) — NEAR COMPLETE
+## ✅ Phase 1: Foundation (Weeks 1–6) — COMPLETE
 **Goal:** Establish the core value proposition: "Fair price discovery."
 
 ### Delivered Features:
@@ -17,13 +17,25 @@ This document outlines the full lifecycle of the **Agriमूल्य** applica
 
 ---
 
-## 🚀 Phase 2: Hyper-Local Insights (Weeks 7–12) — UP NEXT
+## 🚀 Phase 2: Hyper-Local Insights (Weeks 7–12) — IN PROGRESS
 **Goal:** Provide actionable data beyond just market prices.
 
-- **Village-Level Weather**: Integration with hyper-local weather APIs for sowing/harvesting alerts.
-- **Price Predictions**: Basic ML-driven price trend forecasting based on historical data.
-- **Mandi News**: A curated feed of local mandi closures, news, and agricultural updates.
-- **Push Notifications**: Real-time alerts when a tracked crop hits a target price or MSP changes.
+### Week 7 — ✅ Weather & location (shipped)
+- **Open-Meteo** integration (free, no API key) with Redis cache (30 min)
+- User profile: village, district, state, optional GPS
+- **`GET /api/insights`** — weather + sowing/harvest alerts in one call (low bandwidth)
+- **WeatherCard** + **AlertsBanner** on home page
+- **crop_calendar** seeded for Wheat, Rice, Soybean, Cotton, Onion (MH, MP, Delhi)
+
+### Upcoming (Weeks 8–12)
+- Price threshold push notifications (FCM)
+- Mandi closure feed + news RSS
+- Basic price forecast (EMA, nightly job)
+
+**Migration (Neon / local):**
+```bash
+psql "$DATABASE_URL" -f backend/src/db/migrations/002_phase2_weather.sql
+```
 
 ---
 
@@ -48,6 +60,6 @@ This document outlines the full lifecycle of the **Agriमूल्य** applica
 ---
 
 ## 📊 Current Status
-- **Overall Completion:** 25% (Foundation 100% Done)
+- **Overall Completion:** ~30% (Phase 1 done; Phase 2 Week 7 started)
 - **Primary Tech Stack:** Node.js, React (Vite), PostgreSQL, Redis.
 - **Primary Markets:** Maharashtra, Madhya Pradesh, Delhi (Initial Data Focus).

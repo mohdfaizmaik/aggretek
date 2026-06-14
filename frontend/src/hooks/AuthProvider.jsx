@@ -72,6 +72,22 @@ export function AuthProvider({ children }) {
         setError(null);
     }, []);
 
+    const updateProfile = useCallback(async (fields) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await api.updateProfile(fields);
+            persistAuth(localStorage.getItem('agritech_token'), res.data.user);
+            setUser(res.data.user);
+            return true;
+        } catch (err) {
+            setError(err.response?.data?.error || 'Update failed');
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     const value = useMemo(
         () => ({
             user,
@@ -80,9 +96,10 @@ export function AuthProvider({ children }) {
             login,
             register,
             logout,
+            updateProfile,
             isLoggedIn: !!user,
         }),
-        [user, loading, error, login, register, logout]
+        [user, loading, error, login, register, logout, updateProfile]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
