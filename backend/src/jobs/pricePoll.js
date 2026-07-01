@@ -6,6 +6,7 @@ const { getAgmarknetPrices } = require('../services/agmarknet');
 const { getEnamPrices } = require('../services/enam');
 const { getCsvFallbackPrices } = require('../services/csvFallback');
 const { normaliseCropName } = require('../services/normalise');
+const { processPriceAlerts } = require('./alertWorker');
 
 const POLL_COMMODITIES = [
     'Wheat', 'Rice', 'Maize', 'Soybean', 'Mustard', 'Cotton',
@@ -127,6 +128,9 @@ async function pollPrices() {
         isRunning = false;
         const duration = ((Date.now() - pollStart) / 1000).toFixed(1);
         console.log(`[PricePoll] Completed in ${duration}s`);
+        
+        // Trigger WhatsApp alerts for any significant changes
+        await processPriceAlerts();
     }
 }
 

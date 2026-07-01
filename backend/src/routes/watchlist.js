@@ -1,10 +1,17 @@
 'use strict';
 const router = require('express').Router();
+const { body, validationResult } = require('express-validator');
 const db = require('../db');
 const { authMiddleware } = require('../middleware/auth');
 
 // All watchlist routes require auth
 router.use(authMiddleware);
+
+const validate = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+    next();
+};
 
 // GET /api/watchlist — includes latest price + MSP for each item
 router.get('/', async (req, res) => {
@@ -48,7 +55,14 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/watchlist
-router.post('/', async (req, res) => {
+router.post(
+    '/',
+    [
+        body('commodity_id').isInt().withMessage('commodity_id must be an integer'),
+        body('market_id').optional({ nullable: true }).isInt().withMessage('market_id must be an integer'),
+        validate,
+    ],
+    async (req, res) => {
     try {
         const { commodity_id, market_id } = req.body;
         if (!commodity_id) return res.status(400).json({ error: 'commodity_id is required' });
@@ -85,5 +99,49 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ error: 'Failed to remove from watchlist' });
     }
 });
+
+// PATCH /api/watchlist/:id
+router.patch(
+    '/:id',
+    [
+        body('whatsapp_enabled').optional().isBoolean().withMessage('whatsapp_enabled must be a boolean'),
+        body('price_threshold_pct').optional().isFloat({ min: 0.1, max: 100 }).withMessage('threshold must be between 0.1 and 100'),
+        validate,
+    ],
+    async (req, res) => {
+        try {
+            const { whatsapp_enabled, price_threshold_pct } = req.body;
+            const fields = [];
+            const params = [];
+            let i = 1;
+
+            if (whatsapp_enabled !== undefined) {
+                fields.push(`whatsapp_enabled = $${i++}`);
+                params.push(whatsapp_enabled);
+            }
+            if (price_threshold_pct !== undefined) {
+                fields.push(`price_threshold_pct = $${i++}`);
+                params.push(price_threshold_pct);
+            }
+
+            if (fields.length === 0) return res.status(400).json({ error: 'No fields to update' });
+
+            params.push(req.params.id, req.user.id);
+            const query = `
+                UPDATE watchlist 
+                SET ${fields.join(', ')} 
+                WHERE id = $${i++} AND user_id = $${i++}
+                RETURNING *`;
+
+            const result = await db.query(query, params);
+            if (result.rows.length === 0) return res.status(404).json({ error: 'Watchlist item not found' });
+
+            res.json(result.rows[0]);
+        } catch (err) {
+            console.error('[API/watchlist/patch]', err.message);
+            res.status(500).json({ error: 'Failed to update alert preferences' });
+        }
+    }
+);
 
 module.exports = router;

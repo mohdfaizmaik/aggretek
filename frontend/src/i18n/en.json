@@ -23,12 +23,16 @@
         "min": "Min ₹",
         "max": "Max ₹",
         "modal": "Modal ₹",
+        "trend": "Trend",
         "msp": "MSP ₹",
         "date": "Date",
         "source": "Source",
         "updated": "Updated",
         "no_data": "No price data found. Try a different crop or market.",
-        "loading": "Loading prices…"
+        "loading": "Loading prices…",
+        "bullish": "Rising",
+        "bearish": "Falling",
+        "stable": "Stable"
     },
     "chart": {
         "title": "7-Day Price Trend",
@@ -57,7 +61,9 @@
         "add": "Add to Watchlist",
         "remove": "Remove",
         "login_prompt": "Login to save your watchlist",
-        "no_price": "No recent price data"
+        "no_price": "No recent price data",
+        "alerts": "WhatsApp Alerts",
+        "whatsapp_hint": "Get notified when prices change > 5%"
     },
     "auth": {
         "login_title": "Welcome Back",

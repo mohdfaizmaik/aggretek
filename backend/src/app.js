@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 
 const commoditiesRouter = require('./routes/commodities');
 const marketsRouter = require('./routes/markets');
@@ -35,7 +36,27 @@ function isAllowedOrigin(origin, allowedOrigins) {
     return false;
 }
 
+// ── Security Middleware ───────────────────────────────────────────────────
+
+// Rate limiter for auth endpoints: 20 attempts per minute
+const authLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 20,
+    message: { error: 'Too many login/register attempts. Please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// HTTPS enforcement for production
+function httpsRedirect(req, res, next) {
+    if (process.env.NODE_ENV === 'production' && req.headers['x-forwarded-proto'] !== 'https') {
+        return res.redirect(`https://${req.headers.host}${req.url}`);
+    }
+    next();
+}
+
 // ── Middleware ──────────────────────────────────────────────────────────────
+app.use(httpsRedirect);
 app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
@@ -120,11 +141,14 @@ if (process.env.MOCK_MODE === 'true') {
     }));
 } else {
     const db = require('./db');
-    app.get('/api/health', async (req, res) => {
+    app.use('/api/auth', authLimiter, authRouter);
+    app.use('/api/health', async (req, res) => {
         const payload = {
             status: 'ok',
             ts: new Date().toISOString(),
             env: process.env.NODE_ENV,
+            uptime: Math.floor(process.uptime()),
+            memory: process.memoryUsage(),
         };
         try {
             await db.query('SELECT 1');
@@ -147,7 +171,6 @@ if (process.env.MOCK_MODE === 'true') {
     app.use('/api/markets', marketsRouter);
     app.use('/api/prices', pricesRouter);
     app.use('/api/msp', mspRouter);
-    app.use('/api/auth', authRouter);
     app.use('/api/watchlist', watchlistRouter);
     app.use('/api/users', require('./routes/users'));
     app.use('/api/weather', require('./routes/weather'));

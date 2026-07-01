@@ -13,6 +13,7 @@ const BASE_COLS = [
     { key: 'min_price', label_key: 'table.min', sortable: true },
     { key: 'max_price', label_key: 'table.max', sortable: true },
     { key: 'modal_price', label_key: 'table.modal', sortable: true },
+    { key: 'trend', label_key: 'table.trend', sortable: false },
     { key: 'msp', label_key: 'table.msp', sortable: false },
     { key: 'updated', label_key: 'table.updated', sortable: false },
     { key: 'source', label_key: 'table.source', sortable: false },
@@ -21,6 +22,26 @@ const BASE_COLS = [
 function fmt(val) {
     if (val == null) return '—';
     return '₹' + Number(val).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+}
+
+function TrendIndicator({ trend }) {
+    const { t } = useTranslation();
+    if (!trend) return null;
+
+    const config = {
+        bullish: { icon: '↗️', class: 'trend-bullish', label: 'table.bullish' },
+        bearish: { icon: '↘️', class: 'trend-bearish', label: 'table.bearish' },
+        stable: { icon: '➡️', class: 'trend-stable', label: 'table.stable' },
+    };
+
+    const { icon, label } = config[trend] || config.stable;
+
+    return (
+        <div className="trend-cell" title={t(label)}>
+            <span className="trend-icon">{icon}</span>
+            <span className="trend-text">{t(label)}</span>
+        </div>
+    );
 }
 
 export default function PriceTable({
@@ -44,6 +65,9 @@ export default function PriceTable({
         ...(showWatchlist
             ? [{ key: 'watchlist', label_key: '', sortable: false }]
             : [{ key: 'actions', label_key: 'common.actions', sortable: false }]),
+        ...(onToggleAlert
+            ? [{ key: 'whatsapp', label_key: 'watchlist.alerts', sortable: false }]
+            : []),
     ];
 
     if (loading && data.length === 0) return <LoadingSkeleton rows={8} />;
@@ -111,6 +135,7 @@ export default function PriceTable({
                                 <td className="price-value font-mono">
                                     {row.modal_price != null ? fmt(row.modal_price) : t('watchlist.no_price')}
                                 </td>
+                                <td><TrendIndicator trend={row.trend} /></td>
                                 <td><MSPBadge status={row.msp_status} mspPrice={row.msp_price} /></td>
                                 <td><FreshnessBadge fetchedAt={row.fetched_at} /></td>
                                 <td>
@@ -124,12 +149,23 @@ export default function PriceTable({
                                     {showWatchlist ? (
                                         <WatchlistButton commodityId={row.commodity_id} marketId={row.market_id} />
                                     ) : (
-                                        <button
-                                            className="btn btn-danger btn-sm"
-                                            onClick={() => onRemove?.(row.id)}
-                                        >
-                                            {t('watchlist.remove')}
-                                        </button>
+                                        <div className="flex items-center gap-2">
+                                            {onToggleAlert && (
+                                                <button
+                                                    className={`btn btn-sm ${row.whatsapp_enabled ? 'btn-success' : 'btn-ghost'}`}
+                                                    onClick={() => onToggleAlert(row)}
+                                                    title={t('watchlist.whatsapp_hint')}
+                                                >
+                                                    {row.whatsapp_enabled ? '✅ WhatsApp' : '🔔 Alert'}
+                                                </button>
+                                            )}
+                                            <button
+                                                className="btn btn-danger btn-sm"
+                                                onClick={() => onRemove?.(row.id)}
+                                            >
+                                                {t('watchlist.remove')}
+                                            </button>
+                                        </div>
                                     )}
                                 </td>
                             </tr>

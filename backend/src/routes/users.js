@@ -1,5 +1,6 @@
 'use strict';
 const router = require('express').Router();
+const { body, validationResult } = require('express-validator');
 const db = require('../db');
 const { authMiddleware } = require('../middleware/auth');
 const { resolveLocation, listStates, listDistricts } = require('../data/districtCentroids');
@@ -13,6 +14,12 @@ router.get('/locations', (_req, res) => {
     }));
     res.json({ states });
 });
+
+const validate = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+    next();
+};
 
 router.use(authMiddleware);
 
@@ -33,7 +40,15 @@ router.get('/me', async (req, res) => {
 });
 
 // PATCH /api/users/me
-router.patch('/me', async (req, res) => {
+router.patch(
+    '/me',
+    [
+        body('preferred_lang').optional().isIn(['en', 'hi']).withMessage('Language must be en or hi'),
+        body('district').optional().notEmpty().withMessage('District cannot be empty'),
+        body('state').optional().notEmpty().withMessage('State cannot be empty'),
+        validate,
+    ],
+    async (req, res) => {
     try {
         const { village, district, state, latitude, longitude, preferred_lang } = req.body;
 

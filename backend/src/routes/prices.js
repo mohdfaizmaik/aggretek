@@ -3,6 +3,7 @@ const router = require('express').Router();
 const db = require('../db');
 const { cacheGet, cacheSet, TTL } = require('../cache/redis');
 const { normaliseCropName } = require('../services/normalise');
+const { getCommodityForecast } = require('../services/forecast');
 
 /**
  * GET /api/prices
@@ -108,13 +109,27 @@ router.get('/', async (req, res) => {
           msp.msp_price,
           CASE WHEN msp.msp_price IS NOT NULL THEN
             CASE WHEN p.modal_price >= msp.msp_price THEN 'above' ELSE 'below' END
-          ELSE NULL END AS msp_status
+          ELSE NULL END AS msp_status,
+          trend_data.avg_7d,
+          CASE 
+            WHEN p.modal_price > trend_data.avg_7d * 1.02 THEN 'bullish'
+            WHEN p.modal_price < trend_data.avg_7d * 0.98 THEN 'bearish'
+            ELSE 'stable'
+          END AS trend
        FROM prices p
        JOIN commodities c ON c.id = p.commodity_id
        JOIN markets mk ON mk.id = p.market_id
           LEFT JOIN msp ON msp.commodity_id = c.id AND msp.year = (
             SELECT MAX(m2.year) FROM msp m2 WHERE m2.commodity_id = c.id
           )
+          LEFT JOIN LATERAL (
+            SELECT AVG(p2.modal_price) as avg_7d
+            FROM prices p2
+            WHERE p2.commodity_id = p.commodity_id
+              AND p2.market_id = p.market_id
+              AND p2.price_date < p.price_date
+              AND p2.price_date >= p.price_date - INTERVAL '7 days'
+          ) trend_data ON true
        ${where}
        ORDER BY ${sortColumn} ${safeOrder}
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -190,6 +205,40 @@ router.get('/sparkline', async (req, res) => {
     } catch (err) {
         console.error('[API/prices/sparkline]', err.message);
         res.status(500).json({ error: 'Failed to fetch sparkline data' });
+    }
+});
+
+/**
+ * GET /api/prices/forecast?commodity=Wheat&market=Nagpur
+ * Returns EMA-based price trend forecast
+ */
+router.get('/forecast', async (req, res) => {
+    try {
+        const { commodity, market } = req.query;
+        if (!commodity) return res.status(400).json({ error: 'commodity is required' });
+
+        const commodityResult = await db.query(
+            'SELECT id FROM commodities WHERE LOWER(name_en) = LOWER($1) OR name_hi = $1',
+            [commodity]
+        );
+        if (commodityResult.rows.length === 0) 
+            return res.status(404).json({ error: 'Commodity not found' });
+        
+        const commodityId = commodityResult.rows[0].id;
+        let marketId = null;
+        if (market) {
+            const marketResult = await db.query(
+                'SELECT id FROM markets WHERE LOWER(name) = LOWER($1)',
+                [market]
+            );
+            marketId = marketResult.rows[0]?.id || null;
+        }
+
+        const forecast = await getCommodityForecast(commodityId, marketId);
+        res.json(forecast);
+    } catch (err) {
+        console.error('[API/prices/forecast]', err.message);
+        res.status(500).json({ error: 'Failed to generate forecast' });
     }
 });
 

@@ -55,6 +55,7 @@ export const api = {
     getWatchlist: () => client.get('/watchlist'),
     addWatchlist: (data) => client.post('/watchlist', data),
     removeWatchlist: (id) => client.delete(`/watchlist/${id}`),
+    updateWatchlist: (id, data) => client.patch(`/watchlist/${id}`, data),
     getInsights: (params) => client.get('/insights', { params }),
     getWeather: (params) => client.get('/weather', { params }),
     getLocations: () => client.get('/users/locations'),

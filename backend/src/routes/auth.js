@@ -2,20 +2,34 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { body, validationResult } = require('express-validator');
 const db = require('../db');
 const { toPublicUser } = require('../utils/user');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'agritech-dev-secret-change-in-prod';
+const JWT_SECRET = process.env.JWT_SECRET;
+// Note: Middleware already checks for JWT_SECRET at boot, but keeping it robust here.
 const JWT_EXPIRES = '7d';
 
+const validate = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+};
+
 // POST /api/auth/register
-router.post('/register', async (req, res) => {
-    try {
-        const { email, password, preferred_lang = 'en' } = req.body;
-        if (!email || !password)
-            return res.status(400).json({ error: 'Email and password are required' });
-        if (password.length < 6)
-            return res.status(400).json({ error: 'Password must be at least 6 characters' });
+router.post(
+    '/register',
+    [
+        body('email').isEmail().withMessage('Invalid email address'),
+        body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+        validate,
+    ],
+    async (req, res) => {
+        try {
+            const { email, password, preferred_lang = 'en' } = req.body;
+            // Existing checks for !email || !password are now handled by validator
 
         const existing = await db.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
         if (existing.rows.length > 0)
@@ -39,11 +53,17 @@ router.post('/register', async (req, res) => {
 });
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        if (!email || !password)
-            return res.status(400).json({ error: 'Email and password are required' });
+router.post(
+    '/login',
+    [
+        body('email').isEmail().withMessage('Invalid email address'),
+        body('password').notEmpty().withMessage('Password is required'),
+        validate,
+    ],
+    async (req, res) => {
+        try {
+            const { email, password } = req.body;
+            // Existing checks for !email || !password are now handled by validator
 
         const result = await db.query('SELECT * FROM users WHERE email = $1', [email.toLowerCase()]);
         const user = result.rows[0];

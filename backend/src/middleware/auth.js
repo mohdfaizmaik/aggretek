@@ -1,7 +1,10 @@
 'use strict';
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'agritech-dev-secret-change-in-prod';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('[Auth] JWT_SECRET is not defined in environment variables');
+}
 
 function authMiddleware(req, res, next) {
     const header = req.headers.authorization;

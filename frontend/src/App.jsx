@@ -7,6 +7,7 @@ import RegisterPage from './pages/RegisterPage';
 import WatchlistPage from './pages/WatchlistPage';
 import ProfilePage from './pages/ProfilePage';
 import './i18n/i18n';
+import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { WatchlistProvider } from './hooks/useWatchlist.jsx';
 
@@ -61,13 +62,15 @@ function AppShell() {
 
 function App() {
     return (
-        <Router>
-            <AuthProvider>
-                <WatchlistProvider>
-                    <AppShell />
-                </WatchlistProvider>
-            </AuthProvider>
-        </Router>
+        <ErrorBoundary>
+            <Router>
+                <AuthProvider>
+                    <WatchlistProvider>
+                        <AppShell />
+                    </WatchlistProvider>
+                </AuthProvider>
+            </Router>
+        </ErrorBoundary>
     );
 }
 

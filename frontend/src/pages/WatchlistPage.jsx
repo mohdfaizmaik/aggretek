@@ -29,12 +29,25 @@ export default function WatchlistPage() {
         source: item.source,
         msp_price: item.msp_price,
         msp_status: item.msp_status,
+        whatsapp_enabled: item.whatsapp_enabled,
+        price_threshold_pct: item.price_threshold_pct,
     }));
 
     const handleRemove = async (id) => {
         try {
             await api.removeWatchlist(id);
             if (selectedRow?.id === id) setSelectedRow(null);
+            await refresh();
+        } catch (err) {
+            setError(err.response?.data?.error || t('errors.fetch_failed'));
+        }
+    };
+
+    const handleToggleAlert = async (row) => {
+        try {
+            await api.updateWatchlist(row.id, { 
+                whatsapp_enabled: !row.whatsapp_enabled 
+            });
             await refresh();
         } catch (err) {
             setError(err.response?.data?.error || t('errors.fetch_failed'));
@@ -82,8 +95,10 @@ export default function WatchlistPage() {
                             error={null}
                             selectedRow={selectedRow}
                             onRowClick={setSelectedRow}
-                            showWatchlist={false}
+                            showWatchlist={false} // This means "show actions instead of add-to-watchlist button"
                             onRemove={handleRemove}
+                            isWatchlistView={true}
+                            onToggleAlert={handleToggleAlert}
                         />
                     </>
                 )}
