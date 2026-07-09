@@ -57,6 +57,7 @@ export default function PriceTable({
     onPageChange,
     showWatchlist = true,
     onRemove,
+    onToggleAlert,
 }) {
     const { t, i18n } = useTranslation();
 
@@ -149,25 +150,25 @@ export default function PriceTable({
                                     {showWatchlist ? (
                                         <WatchlistButton commodityId={row.commodity_id} marketId={row.market_id} />
                                     ) : (
-                                        <div className="flex items-center gap-2">
-                                            {onToggleAlert && (
-                                                <button
-                                                    className={`btn btn-sm ${row.whatsapp_enabled ? 'btn-success' : 'btn-ghost'}`}
-                                                    onClick={() => onToggleAlert(row)}
-                                                    title={t('watchlist.whatsapp_hint')}
-                                                >
-                                                    {row.whatsapp_enabled ? '✅ WhatsApp' : '🔔 Alert'}
-                                                </button>
-                                            )}
-                                            <button
-                                                className="btn btn-danger btn-sm"
-                                                onClick={() => onRemove?.(row.id)}
-                                            >
-                                                {t('watchlist.remove')}
-                                            </button>
-                                        </div>
+                                        <button
+                                            className="btn btn-danger btn-sm"
+                                            onClick={() => onRemove?.(row.id)}
+                                        >
+                                            {t('watchlist.remove')}
+                                        </button>
                                     )}
                                 </td>
+                                {onToggleAlert && (
+                                    <td onClick={(e) => e.stopPropagation()}>
+                                        <button
+                                            className={`btn btn-sm ${row.whatsapp_enabled ? 'btn-success' : 'btn-ghost'}`}
+                                            onClick={() => onToggleAlert(row)}
+                                            title={t('watchlist.whatsapp_hint')}
+                                        >
+                                            {row.whatsapp_enabled ? '✅ WhatsApp' : '🔔 Alert'}
+                                        </button>
+                                    </td>
+                                )}
                             </tr>
                         ))}
                     </tbody>
