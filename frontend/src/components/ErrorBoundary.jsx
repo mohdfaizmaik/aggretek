@@ -31,7 +31,7 @@ class ErrorBoundary extends React.Component {
                         </p>
                         <button 
                             className="btn btn-primary w-full"
-                            onClick={handleReset}
+                            onClick={this.handleReset}
                         >
                             Back to Home
                         </button>
