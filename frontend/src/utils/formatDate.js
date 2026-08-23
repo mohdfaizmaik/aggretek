@@ -6,7 +6,7 @@ const LOCALES = { en: enIN, hi };
 
 function parseDate(value) {
     if (!value) return null;
-    const d = new Date(value);
+    const d = new Date(value)
     return Number.isNaN(d.getTime()) ? null : d;
 }
 
