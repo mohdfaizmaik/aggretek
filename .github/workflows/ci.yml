@@ -1,13 +1,13 @@
-name:sellar CI
+name: Seller CI
 
-on:push:
-   pull_request
+on:
+  push:
+  pull_request:
 
 jobs:
-    lint-and-build:
-      runs-on: ubantu-latest
+  lint-and-build:
+    runs-on: ubuntu-latest
 
-    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
