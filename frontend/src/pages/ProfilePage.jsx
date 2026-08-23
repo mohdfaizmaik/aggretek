@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -36,8 +36,10 @@ export default function ProfilePage() {
         }
     }, [user]);
 
-    const districtsForState = locationOptions.find((s) => s.state === state)?.districts || [];
-
+const districtsForState = useMemo(
+  () => locationOptions.find((s) => s.state === state)?.districts || [],
+  [state, locationOptions]
+);
     useEffect(() => {
         if (districtsForState.length && !districtsForState.includes(district)) {
             setDistrict(districtsForState[0]);

@@ -8,8 +8,9 @@ import WatchlistPage from './pages/WatchlistPage';
 import ProfilePage from './pages/ProfilePage';
 import './i18n/i18n';
 import ErrorBoundary from './components/ErrorBoundary';
-import { AuthProvider, useAuth } from './hooks/useAuth';
-import { WatchlistProvider } from './hooks/useWatchlist.jsx';
+import { AuthProvider } from './hooks/AuthProvider.jsx';
+import { useAuth } from './hooks/useAuth';
+import { WatchlistProvider } from './hooks/WatchlistProvider.jsx';
 
 function PrivateRoute({ children }) {
     const { isLoggedIn } = useAuth();

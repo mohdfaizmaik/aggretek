@@ -1,8 +1,7 @@
-import { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import i18n from 'i18next';
 import { api } from '../api/client';
-
-const AuthContext = createContext(null);
+import { AuthContext } from './authContext';
 
 function loadStoredUser() {
     try {
@@ -108,12 +107,4 @@ export function AuthProvider({ children }) {
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-    const ctx = useContext(AuthContext);
-    if (!ctx) {
-        throw new Error('useAuth must be used within AuthProvider');
-    }
-    return ctx;
 }
